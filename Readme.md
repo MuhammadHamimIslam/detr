@@ -51,7 +51,7 @@ A from-scratch PyTorch implementation of DETR, built mainly as a learning projec
 
 ## Setup
 ```bash
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/MuhammadHamimIslam/detr.git
 cd your-repo
 pip install -r requirements.txt
 ```
