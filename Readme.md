@@ -1,5 +1,12 @@
 # DETR (DEtection TRansformer)
 
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white)
+![timm](https://img.shields.io/badge/timm-backbones-orange)
+![Accelerate](https://img.shields.io/badge/%F0%9F%A4%97%20Accelerate-FFD21E)
+![pycocotools](https://img.shields.io/badge/pycocotools-eval-lightgrey)
+![License](https://img.shields.io/badge/license-Apache%202.0-green)
+
 A from-scratch PyTorch implementation of DETR, built mainly as a learning project. It follows the general architecture from the original paper, [End-to-End Object Detection with Transformers](https://arxiv.org/abs/2005.12872), but simplifies a few pieces to keep the code approachable rather than chasing the paper's full scale and performance.
 
 ## Architecture
@@ -44,7 +51,7 @@ A from-scratch PyTorch implementation of DETR, built mainly as a learning projec
 
 ## Setup
 ```bash
-git clone https://github.com/MuhammadHamimIslam/detr.git
+git clone https://github.com/your-username/your-repo.git
 cd your-repo
 pip install -r requirements.txt
 ```
@@ -60,7 +67,7 @@ python model_train.py --backbone-name resnet18 --epochs 20 --batch 8 --checkpoin
 
 Multi-GPU / mixed precision:
 ```bash
-accelerate launch --multi_gpu --num_processes 2 model_train.py --backbone-name resnet18 --epochs 20 --batch 8 --save-model true --checkpoint-path detr-resnet18.pth --data-dir path/to/coco-data
+accelerate launch --multi_gpu --num_processes 2 model_train.py --backbone-name resnet18 --epochs 20 --batch 8 --checkpoint-path detr-resnet18.pth --data-dir path/to/coco-data
 ```
 
 Or pull the dataset from Roboflow instead of `--data-dir`:
@@ -82,7 +89,7 @@ accelerate launch --multi_gpu --num_processes 2 model_train.py --backbone-name r
 ```bash
 python predict.py --image-path your_image.png --checkpoint-path detr-resnet18.pth --threshold 0.3
 ```
-Runs inference on a single image and displays the predicted boxes with class labels and confidence scores. image-path can also take urls.
+Runs inference on a single image and displays the predicted boxes with class labels and confidence scores. `--image-path` can also take urls.
 
 ### Evaluate
 ```bash

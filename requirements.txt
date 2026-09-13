@@ -11,3 +11,4 @@ accelerate
 PIL
 # fetching image from url
 requests
+# pycocotools
