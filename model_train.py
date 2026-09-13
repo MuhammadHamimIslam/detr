@@ -40,7 +40,7 @@ transform = T.Compose([
     T.ToDtype(torch.float32, scale=True)
 ])
 train_data = CocoDataset(
-    root=data_dir,
+    root=f"{data_dir}/train",
     annFile=f'{data_dir}/train/_annotations.coco.json',
     transform=transform
 )

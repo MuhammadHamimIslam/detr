@@ -104,7 +104,7 @@ if __name__ == "__main__":
         T.ToDtype(torch.float32, scale=True)
     ])
     val_data = CocoDataset(
-        root=data_dir,
+        root=f"{data_dir}/valid",
         annFile=f'{data_dir}/valid/_annotations.coco.json',
         transform=transform
     )

@@ -11,4 +11,7 @@ accelerate
 Pillow
 # fetching image from url
 requests
-# pycocotools
+# evaluation
+pycocotools
+# get data
+roboflow
