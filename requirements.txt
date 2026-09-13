@@ -8,7 +8,7 @@ tqdm
 # for device management
 accelerate
 # image processing
-PIL
+Pillow
 # fetching image from url
 requests
 # pycocotools
