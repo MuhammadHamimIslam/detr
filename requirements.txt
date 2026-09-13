@@ -1,0 +1,13 @@
+# core working library
+torch
+torchvision
+# for getting backbone
+timm
+# interactive progress bar
+tqdm
+# for device management
+accelerate
+# image processing
+PIL
+# fetching image from url
+requests
