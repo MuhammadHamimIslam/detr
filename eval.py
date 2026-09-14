@@ -90,11 +90,11 @@ def evaluate(coco_gt, predictions):
 
 if __name__ == "__main__":
     checkpoint = torch.load(args.checkpoint_path, map_location=device)
-    id_to_text = checkpoint["id_to_text"]
-    id_list = list(id_to_text.keys())  # model class index i -> id_list[i] = real COCO category id
+    id_to_name = checkpoint["id_to_name"]
+    id_list = list(id_to_name.keys())  # model class index i -> id_list[i] = real COCO category id
 
     model = DETR(
-        num_classes=len(id_to_text),
+        num_classes=len(id_to_name),
         backbone_name=checkpoint["backbone_name"],
     )
     model.load_state_dict(checkpoint["model_state_dict"])

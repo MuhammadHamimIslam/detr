@@ -7,7 +7,7 @@ def make_color_code(id_to_name):
     cmap = plt.cm.get_cmap('tab20', n)  # tab20 has 20 distinct colors, cycles/interpolates beyond that
     return {cat_id: to_hex(cmap(i)) for i, cat_id in enumerate(id_to_name.keys())}
 
-color_code = make_color_code(id_to_text)
+color_code = make_color_code(id_to_name)
 
 def visualize(
     id_to_name,

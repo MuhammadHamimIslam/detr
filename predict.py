@@ -60,10 +60,10 @@ def process_image(img_path: str) -> PIL.Image.Image:
         
 if __name__ == "__main__":
     checkpoint = torch.load(args.checkpoint_path, map_location=device)
-    id_to_text = checkpoint["id_to_text"]
+    id_to_name = checkpoint["id_to_name"]
 
     model = DETR(
-        num_classes=len(id_to_text),
+        num_classes=len(id_to_name),
         backbone_name=checkpoint["backbone_name"]
     )
     model.load_state_dict(checkpoint["model_state_dict"])
@@ -80,10 +80,10 @@ if __name__ == "__main__":
         model, img, device, threshold=args.threshold
     )
 
-    color_code = make_color_code(id_to_text)
+    color_code = make_color_code(id_to_name)
 
     visualize(
-        id_to_name=id_to_text,
+        id_to_name=id_to_name,
         color_code=color_code,
         img=img,
         preds=boxes_xyxy,

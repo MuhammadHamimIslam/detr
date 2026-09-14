@@ -85,6 +85,7 @@ loss_fn = SetCriterion(
     device=accelerator.device,
     eos_coef=0.5
 )
+
 if __name__ == '__main__':
     train_model(
         model=model,
@@ -112,7 +113,7 @@ if __name__ == '__main__':
             {
                 "model_state_dict": unwrapped_model.state_dict(),
                 "backbone_name": args.backbone_name,
-                "id_to_text": id_to_text,
+                "id_to_name": id_to_name,
             },
             checkpoint_path
         )
