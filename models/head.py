@@ -15,7 +15,7 @@ class MLP(nn.Module):
              )
            )
            layers.append(nn.ReLU())
-           layers.append(nn.Droput(0.1))
+           layers.append(nn.Dropout(0.1))
 
        layers.append(nn.Linear(hidden_dim, output_dim))
 
