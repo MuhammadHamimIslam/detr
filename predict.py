@@ -53,7 +53,7 @@ def process_image(img_path: str) -> PIL.Image.Image:
         resposne = requests.get(img_path)
         resposne.raise_for_status()
         byte = io.BytesIO(resposne.raw)
-        return Image(byte).convert("RGB")
+        return Image.open(byte).convert("RGB")
     else:
         img = Image.open(img_path)
         return img.convert("RGB")
@@ -61,7 +61,8 @@ def process_image(img_path: str) -> PIL.Image.Image:
 if __name__ == "__main__":
     checkpoint = torch.load(args.checkpoint_path, map_location=device)
     id_to_name = checkpoint["id_to_name"]
-
+    print(id_to_name)
+    
     model = DETR(
         num_classes=len(id_to_name),
         backbone_name=checkpoint["backbone_name"]
