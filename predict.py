@@ -1,3 +1,5 @@
+%%writefile predict.py
+
 import argparse
 import torch
 import torch.nn.functional as F
@@ -13,6 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--checkpoint-path", type=str, required=True)
 parser.add_argument("--image-path", type=str, required=True)
 parser.add_argument("--threshold", type=float, default=0.5)
+parser.add_argument("--save-plot", type=bool, default=False)
 args = parser.parse_args()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -42,7 +45,7 @@ def predict(model, img: torch.Tensor, device, threshold=0.5):
 
     return boxes_xyxy, scores_filtered, labels_filtered
 
-def process_image(img_path: str) -> PIL.Image.Image:
+def process_image(img_path: str) -> Image.Image:
     """ Process image and return PIL.Image 
     Args:
         img_path: Image path or url
@@ -52,7 +55,7 @@ def process_image(img_path: str) -> PIL.Image.Image:
     if img_path.startswith("https://") or img_path.startswith("http://"):
         resposne = requests.get(img_path)
         resposne.raise_for_status()
-        byte = io.BytesIO(resposne.raw)
+        byte = io.BytesIO(resposne.content)
         return Image.open(byte).convert("RGB")
     else:
         img = Image.open(img_path)
@@ -61,7 +64,10 @@ def process_image(img_path: str) -> PIL.Image.Image:
 if __name__ == "__main__":
     checkpoint = torch.load(args.checkpoint_path, map_location=device)
     id_to_name = checkpoint["id_to_name"]
-    print(id_to_name)
+    print("Predicting for classes: ")
+    for v in id_to_name.values():
+        print(v, end="\t")
+    
     
     model = DETR(
         num_classes=len(id_to_name),
@@ -72,7 +78,8 @@ if __name__ == "__main__":
 
     transform = T.Compose([
         T.ToImage(),
-        T.ToDtype(torch.float32, scale=True)
+        T.ToDtype(torch.float32, scale=True),
+        T.Resize((640, 640))
     ])
     img_pil = process_image(img_path=args.image_path)
     img = transform(img_pil)
@@ -89,5 +96,6 @@ if __name__ == "__main__":
         img=img,
         preds=boxes_xyxy,
         scores=scores,
-        labels=labels
+        labels=labels,
+        save_plot=args.save_plot
     )

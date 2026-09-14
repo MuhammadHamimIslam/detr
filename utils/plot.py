@@ -7,15 +7,14 @@ def make_color_code(id_to_name):
     cmap = plt.cm.get_cmap('tab20', n)  # tab20 has 20 distinct colors, cycles/interpolates beyond that
     return {cat_id: to_hex(cmap(i)) for i, cat_id in enumerate(id_to_name.keys())}
 
-color_code = make_color_code(id_to_name)
-
 def visualize(
     id_to_name,
     color_code,
     img,
     preds,
     scores=None,
-    labels=None
+    labels=None,
+    save_plot=False
 ):
    """ Visualize the image with boxes and labels, show scores if scores provided """
 
@@ -71,6 +70,8 @@ def visualize(
                fontsize=8,
                bbox=dict(facecolor=color, alpha=0.7, edgecolor='none', pad=1)
            )
-
    ax.set_axis_off()
+   if save_plot:
+       plt.savefig("predicted.jpg")
+       print("Image saved as `predicted.jpg`")
    plt.show()
