@@ -1,5 +1,6 @@
 import argparse
 import torch
+from tqdm.auto import tqdm
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import torchvision.transforms.v2 as T
@@ -37,9 +38,9 @@ def predict_val_data(model, loader, id_list, threshold=0.5):
     model.eval()
     results = []
 
-    for images, targets in loader:
+    for images, targets in tqdm(loader, desc="Evaluating"):
         images = torch.stack([img.to(device, non_blocking=True) for img in images])
-        H, W = images.shape[-2:]  # pixel dims, assumes fixed-size input
+        H, W = images.shape[-2:]  # pixel dims
 
         logits, boxes = model(images)
         prob = F.softmax(logits, dim=-1)

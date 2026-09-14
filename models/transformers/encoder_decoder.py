@@ -94,6 +94,7 @@ class TransformerDecoder(nn.Module):
       )
 
    def forward(self, query, key, value, query_pos=None, key_pos=None):
-      for layer in self.layers:
-          x = layer(query, key, value, query_pos, key_pos)
-      return x
+       x = query
+       for layer in self.layers:
+          x = layer(x, key, value, query_pos, key_pos)
+       return x

@@ -88,8 +88,8 @@ class PositionalEmbedding(nn.Module):
           dim=-1
        ).flatten(-2)
        pos_y = torch.stack((
-          pos_y[..., 1::2].sin(),
-          pos_y[..., 1::2].cos()
+          pos_y[..., 0::2].sin(),
+                pos_y[..., 1::2].cos()
           ),
           dim=-1
        ).flatten(-2)

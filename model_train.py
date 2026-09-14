@@ -12,6 +12,7 @@ from data.dataset import CocoDataset, collate_fn
 from data.get_data import get_data_roboflow
 from accelerate import Accelerator
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--roboflow-user-id", type=str, default=None)
 parser.add_argument("--roboflow-project-id", type=str, default=None)
@@ -23,6 +24,8 @@ parser.add_argument("--batch", type=int, default=8)
 parser.add_argument("--lr", type=float, default=1e-4)
 parser.add_argument("--save-model", type=bool, default=True)
 parser.add_argument("--checkpoint-path", type=str, default=None)
+parser.add_argument("--eval-model", type=bool, default=False)
+parser.add_argument("--seed", type=int, default=42)
 
 args = parser.parse_args()
 
@@ -34,6 +37,10 @@ if args.roboflow_user_id and args.roboflow_project_id:
     )
 else:
     data_dir = args.data_dir
+
+# seed everything
+torch.random.manual_seed(args.seed)
+torch.cuda.manual_seed(args.seed)
 
 transform = T.Compose([
     T.ToImage(),
@@ -78,24 +85,35 @@ loss_fn = SetCriterion(
     device=accelerator.device,
     eos_coef=0.5
 )
-
-train_model(
-    model=model,
-    train_loader=train_loader,
-    optimizer=optimizer,
-    loss_fn=loss_fn,
-    epochs=args.epochs,
-    accelerator=accelerator,
-)
-
-if args.save_model and accelerator.is_local_main_process:
-    unwrapped_model = accelerator.unwrap_model(model)
-    torch.save(
-        {
-            "model_state_dict": unwrapped_model.state_dict(),
-            "backbone_name": args.backbone_name,
-            "id_to_text": id_to_text,
-        },
-        args.checkpoint_path
+if __name__ == '__main__':
+    train_model(
+        model=model,
+        train_loader=train_loader,
+        optimizer=optimizer,
+        loss_fn=loss_fn,
+        epochs=args.epochs,
+        accelerator=accelerator,
+        val_data=CocoDataset(
+            root=f"{data_dir}/valid",
+            annFile=f'{data_dir}/valid/_annotations.coco.json',
+            transform=transform
+        ) if args.eval_model else None
     )
-    print(f"Saved checkpoint to {args.checkpoint_path}")
+    
+    if args.save_model and accelerator.is_local_main_process:
+        unwrapped_model = accelerator.unwrap_model(model)
+
+        if args.checkpoint_path is None:
+            checkpoint_path = f"detr-{args.backbone_name}"
+        else:
+            checkpoint_path = args.checkpoint_path
+
+        torch.save(
+            {
+                "model_state_dict": unwrapped_model.state_dict(),
+                "backbone_name": args.backbone_name,
+                "id_to_text": id_to_text,
+            },
+            checkpoint_path
+        )
+        print(f"Saved checkpoint to {checkpoint_path}")

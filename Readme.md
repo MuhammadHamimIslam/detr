@@ -55,6 +55,10 @@ git clone https://github.com/MuhammadHamimIslam/detr.git
 cd your-repo
 pip install -r requirements.txt
 ```
+To use Roboflow data, Setup Roboflow api key:
+```bash
+export ROBOFLOW_KEY=your-roboflow-key
+```
 
 ## Usage
 Data must be in COCO format — either a local folder or a dataset pulled directly from Roboflow.
@@ -62,12 +66,12 @@ Data must be in COCO format — either a local folder or a dataset pulled direct
 ### Train
 Single GPU:
 ```bash
-python model_train.py --backbone-name resnet18 --epochs 20 --batch 8 --checkpoint-path detr-resnet18.pth --data-dir path/to/coco-data
+python model_train.py --backbone-name resnet18 --epochs 20 --batch 8 --checkpoint-path detr-resnet18.pth --data-dir path/to/coco-data --seed 42
 ```
 
 Multi-GPU / mixed precision:
 ```bash
-accelerate launch --multi_gpu --num_processes 2 model_train.py --backbone-name resnet18 --epochs 20 --batch 8 --checkpoint-path detr-resnet18.pth --data-dir path/to/coco-data
+accelerate launch --multi_gpu --num_processes 2 model_train.py --backbone-name resnet18 --epochs 20 --batch 8 --seed 42 --checkpoint-path detr-resnet18.pth --data-dir path/to/coco-data
 ```
 
 Or pull the dataset from Roboflow instead of `--data-dir`:
@@ -93,7 +97,7 @@ Runs inference on a single image and displays the predicted boxes with class lab
 
 ### Evaluate
 ```bash
-python eval.py --data-dir path/to/coco-data --checkpoint-path detr-resnet18.pth --threshold 0.3
+python eval.py --data-dir path/to/coco-data --checkpoint-path detr-resnet18.pth --threshold 0.3 --seed 42
 ```
 Reports COCO-style mAP against a validation split.
 

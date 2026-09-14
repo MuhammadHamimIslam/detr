@@ -51,6 +51,7 @@ def process_image(img_path: str) -> PIL.Image.Image:
     """
     if img_path.startswith("https://") or img_path.startswith("http://"):
         resposne = requests.get(img_path)
+        resposne.raise_for_status()
         byte = io.BytesIO(resposne.raw)
         return Image(byte).convert("RGB")
     else:
@@ -63,8 +64,7 @@ if __name__ == "__main__":
 
     model = DETR(
         num_classes=len(id_to_text),
-        backbone_name=checkpoint["backbone_name"],
-        backbone_in_channels=512
+        backbone_name=checkpoint["backbone_name"]
     )
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)

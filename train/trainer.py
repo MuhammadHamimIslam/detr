@@ -1,20 +1,18 @@
 from tqdm.auto import tqdm
 import torch
 from torch import nn
+from torch.utils.data import DataLoader
+from data.dataset import collate_fn
 
 
 @torch.no_grad()
-def evaluate(model, val_loader, loss_fn, accelerator):
+def evaluate(model, val_loader, loss_fn):
     model.eval()
+    print("Validating")
     totals = {}
     n_batches = 0
 
     for images, targets in val_loader:
-        images = torch.stack(images)
-        targets = [
-            {k: v.to(accelerator.device, non_blocking=True) for k, v in t.items()}
-            for t in targets
-        ]
 
         logits, boxes = model(images)
         outputs = {"pred_logits": logits, "pred_boxes": boxes}
@@ -27,7 +25,6 @@ def evaluate(model, val_loader, loss_fn, accelerator):
     model.train()
     return {k: v / n_batches for k, v in totals.items()}
 
-
 def train_model(
     model,
     train_loader,
@@ -35,16 +32,17 @@ def train_model(
     loss_fn,
     epochs,
     accelerator,
-    val_loader=None,
+    val_data=None,
 ):
     """ Train the model """
     model.train()
+    print(f"Starting training for {epochs} epochs")
 
     for epoch in range(epochs):
         total_loss = 0
         pbar = tqdm(
             train_loader,
-            desc=f"Epoch: {epoch}",
+            desc=f"Epoch: {epoch+1}",
             disable=not accelerator.is_local_main_process,
         )
         for i, (images, targets) in enumerate(pbar, 1):
@@ -69,11 +67,21 @@ def train_model(
             mean_loss = total_loss / i
             pbar.set_postfix({"loss": f"{loss.item():.4f}", "avg loss": mean_loss})
 
-        if val_loader is not None and accelerator.is_local_main_process:
-            val_losses = evaluate(model, val_loader, loss_fn, accelerator)
+        if val_data is not None and accelerator.is_local_main_process:
+            val_loader = accelerator.prepare(
+                DataLoader(
+                val_data,
+                shuffle=False,
+                batch_size=8,
+                pin_memory=True,
+                collate_fn=collate_fn
+                )
+            )
+            val_losses = evaluate(model, val_loader, loss_fn)
             tqdm.write(
                 f"epoch {epoch} | "
                 f"box_ce {val_losses['loss_ce']:.4f} | "
                 f"box_bbox {val_losses['loss_bbox']:.4f} | "
                 f"box_giou {val_losses['loss_giou']:.4f}"
             )
+    print("Training completed")
