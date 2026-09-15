@@ -46,8 +46,6 @@ transform = T.Compose([
     T.RandomHorizontalFlip(p=0.5),
     T.RandomPhotometricDistort(p=0.5),
     T.RandomZoomOut(fill=0, side_range=(1.0, 1.5), p=0.3),
-    T.RandomIoUCrop(), 
-    T.SanitizeBoundingBoxes(),
     T.ToImage(),
     T.ToDtype(torch.float32, scale=True),
 ])
