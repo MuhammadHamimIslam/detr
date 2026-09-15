@@ -10,8 +10,8 @@ def evaluate(model, val_loader, loss_fn):
     model.eval()
     totals = {}
     n_batches = 0
-
-    for images, targets in tqdm(val_loader, desc="Validating"):
+    print("Validating: ")
+    for images, targets in val_loader:
         images = torch.stack(images)
         logits, boxes = model(images)
         outputs = {"pred_logits": logits, "pred_boxes": boxes}
@@ -28,6 +28,7 @@ def train_model(
     model,
     train_loader,
     optimizer,
+    scheduler,
     loss_fn,
     epochs,
     accelerator,
@@ -83,4 +84,5 @@ def train_model(
                 f"box_bbox {val_losses['loss_bbox']:.4f} | "
                 f"box_giou {val_losses['loss_giou']:.4f}"
             )
+        scheduler.step()
     print("Training completed")

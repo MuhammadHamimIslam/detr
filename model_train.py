@@ -48,6 +48,7 @@ transform = T.Compose([
     T.RandomZoomOut(fill=0, side_range=(1.0, 1.5), p=0.3),
     T.ToImage(),
     T.ToDtype(torch.float32, scale=True),
+    T.Resize((640, 640))
 ])
 train_data = CocoDataset(
     root=f"{data_dir}/train",
@@ -73,15 +74,21 @@ model = DETR(
     pretrained=True
 )
 
-matcher = HungarianMatcher(3, 5, 4)
+matcher = HungarianMatcher(1, 5, 2)
+
 optimizer = torch.optim.SGD(
     [p for p in model.parameters() if p.requires_grad],
     lr=args.lr
 )
+scheduler = lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+    optimizer,
+    T_max=args.epochs,
+    eta_min=1e-6
+)
 
 accelerator = Accelerator()
-model, optimizer, train_loader = accelerator.prepare(
-    model, optimizer, train_loader
+model, optimizer, scheduler, train_loader = accelerator.prepare(
+    model, optimizer, scheduler, train_loader
 )
 loss_fn = SetCriterion(
     num_classes=num_classes,
@@ -98,6 +105,7 @@ if __name__ == '__main__':
         loss_fn=loss_fn,
         epochs=args.epochs,
         accelerator=accelerator,
+        scheduler=scheduler,
         val_data=CocoDataset(
             root=f"{data_dir}/valid",
             annFile=f'{data_dir}/valid/_annotations.coco.json',
