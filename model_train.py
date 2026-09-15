@@ -67,6 +67,23 @@ train_loader = DataLoader(
     collate_fn=collate_fn
 )
 
+val_data=CocoDataset(
+    root=f"{data_dir}/valid",
+    annFile=f'{data_dir}/valid/_annotations.coco.json',
+    transform=T.Compose([
+        T.ToImage(),
+        T.ToDtype(torch.float32, scale=True),
+        T.Resize((640, 640))
+    ])
+)
+val_loader = DataLoader(
+    val_data,
+    shuffle=False,
+    batch_size=8,
+    pin_memory=True,
+    collate_fn=collate_fn
+)
+
 # create model
 model = DETR(
     num_classes=num_classes,
@@ -75,7 +92,6 @@ model = DETR(
 )
 
 matcher = HungarianMatcher(1, 5, 2)
-
 optimizer = torch.optim.SGD(
     [p for p in model.parameters() if p.requires_grad],
     lr=args.lr
@@ -87,8 +103,8 @@ scheduler = lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
 )
 
 accelerator = Accelerator()
-model, optimizer, scheduler, train_loader = accelerator.prepare(
-    model, optimizer, scheduler, train_loader
+model, optimizer, scheduler, train_loader, val_loader = accelerator.prepare(
+    model, optimizer, scheduler, train_loader, val_loader
 )
 loss_fn = SetCriterion(
     num_classes=num_classes,
@@ -106,11 +122,7 @@ if __name__ == '__main__':
         epochs=args.epochs,
         accelerator=accelerator,
         scheduler=scheduler,
-        val_data=CocoDataset(
-            root=f"{data_dir}/valid",
-            annFile=f'{data_dir}/valid/_annotations.coco.json',
-            transform=transform
-        ) if args.eval_model else None
+        val_loader=val_loader if args.eval_model else None
     )
     
     if args.save_model and accelerator.is_local_main_process:

@@ -32,7 +32,7 @@ def train_model(
     loss_fn,
     epochs,
     accelerator,
-    val_data=None,
+    val_loader=None,
 ):
     """ Train the model """
     model.train()
@@ -67,16 +67,7 @@ def train_model(
             mean_loss = total_loss / i
             pbar.set_postfix({"loss": f"{loss.item():.4f}", "avg loss": mean_loss})
 
-        if val_data is not None and accelerator.is_local_main_process:
-            val_loader = accelerator.prepare(
-                DataLoader(
-                val_data,
-                shuffle=False,
-                batch_size=8,
-                pin_memory=True,
-                collate_fn=collate_fn
-                )
-            )
+        if val_loader is not None and accelerator.is_local_main_process:
             val_losses = evaluate(model, val_loader, loss_fn)
             print(
                 f"epoch {epoch+1} | "
@@ -84,5 +75,6 @@ def train_model(
                 f"box_bbox {val_losses['loss_bbox']:.4f} | "
                 f"box_giou {val_losses['loss_giou']:.4f}"
             )
+            
         scheduler.step()
     print("Training completed")
