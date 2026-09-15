@@ -19,6 +19,7 @@ class DETR(nn.Module):
         self,
         num_classes,
         backbone_name="resnet50",
+        pretrained=True,
         num_attn_heads=8,
         num_transformer_layers=6,
         d_model=256,
@@ -29,7 +30,7 @@ class DETR(nn.Module):
     ):
         super().__init__()
 
-        self.backbone, in_channels = get_backbone(backbone_name) # backbone
+        self.backbone, in_channels = get_backbone(backbone_name, pretrained) # backbone
 
         self.b4_transformer = PreTransform(in_channels, d_model) # 1x1 conv and flatten, reshape
 

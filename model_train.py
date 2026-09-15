@@ -43,8 +43,13 @@ torch.random.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 
 transform = T.Compose([
+    T.RandomHorizontalFlip(p=0.5),
+    T.RandomPhotometricDistort(p=0.5),
+    T.RandomZoomOut(fill=0, side_range=(1.0, 1.5), p=0.3),
+    T.RandomIoUCrop(), 
+    T.SanitizeBoundingBoxes(),
     T.ToImage(),
-    T.ToDtype(torch.float32, scale=True)
+    T.ToDtype(torch.float32, scale=True),
 ])
 train_data = CocoDataset(
     root=f"{data_dir}/train",
@@ -67,6 +72,7 @@ train_loader = DataLoader(
 model = DETR(
     num_classes=num_classes,
     backbone_name=args.backbone_name,
+    pretrained=True
 )
 
 matcher = HungarianMatcher(3, 5, 4)

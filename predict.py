@@ -1,5 +1,3 @@
-%%writefile predict.py
-
 import argparse
 import torch
 import torch.nn.functional as F
@@ -67,11 +65,12 @@ if __name__ == "__main__":
     print("Predicting for classes: ")
     for v in id_to_name.values():
         print(v, end="\t")
-    
+    print()
     
     model = DETR(
         num_classes=len(id_to_name),
-        backbone_name=checkpoint["backbone_name"]
+        backbone_name=checkpoint["backbone_name"],
+        pretrained=False
     )
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)

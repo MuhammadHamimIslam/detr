@@ -96,13 +96,15 @@ if __name__ == "__main__":
     model = DETR(
         num_classes=len(id_to_name),
         backbone_name=checkpoint["backbone_name"],
+        pretrained=False
     )
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
 
     transform = T.Compose([
         T.ToImage(),
-        T.ToDtype(torch.float32, scale=True)
+        T.ToDtype(torch.float32, scale=True),
+        T.Resize((640, 640))
     ])
     val_data = CocoDataset(
         root=f"{data_dir}/valid",

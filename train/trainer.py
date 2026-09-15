@@ -8,12 +8,11 @@ from data.dataset import collate_fn
 @torch.no_grad()
 def evaluate(model, val_loader, loss_fn):
     model.eval()
-    print("Validating")
     totals = {}
     n_batches = 0
 
-    for images, targets in val_loader:
-
+    for images, targets in tqdm(val_loader, desc="Validating"):
+        images = torch.stack(images)
         logits, boxes = model(images)
         outputs = {"pred_logits": logits, "pred_boxes": boxes}
         losses = loss_fn(outputs, targets)
@@ -79,7 +78,7 @@ def train_model(
             )
             val_losses = evaluate(model, val_loader, loss_fn)
             tqdm.write(
-                f"epoch {epoch} | "
+                f"epoch {epoch+1} | "
                 f"box_ce {val_losses['loss_ce']:.4f} | "
                 f"box_bbox {val_losses['loss_bbox']:.4f} | "
                 f"box_giou {val_losses['loss_giou']:.4f}"
