@@ -78,7 +78,7 @@ def train_model(
                 )
             )
             val_losses = evaluate(model, val_loader, loss_fn)
-            tqdm.write(
+            print(
                 f"epoch {epoch+1} | "
                 f"box_ce {val_losses['loss_ce']:.4f} | "
                 f"box_bbox {val_losses['loss_bbox']:.4f} | "
