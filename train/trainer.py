@@ -67,14 +67,16 @@ def train_model(
             mean_loss = total_loss / i
             pbar.set_postfix({"loss": f"{loss.item():.4f}", "avg loss": mean_loss})
 
-        if val_loader is not None and accelerator.is_local_main_process:
+        if val_loader is not None:
             val_losses = evaluate(model, val_loader, loss_fn)
-            print(
-                f"epoch {epoch+1} | "
-                f"box_ce {val_losses['loss_ce']:.4f} | "
-                f"box_bbox {val_losses['loss_bbox']:.4f} | "
-                f"box_giou {val_losses['loss_giou']:.4f}"
-            )
-            
+            if accelerator.is_local_main_process:
+                print(
+                    f"epoch {epoch+1} | "
+                    f"box_ce {val_losses['loss_ce']:.4f} | "
+                    f"box_bbox {val_losses['loss_bbox']:.4f} | "
+                    f"box_giou {val_losses['loss_giou']:.4f}"
+                )        
+                    
+                scheduler.step()
         scheduler.step()
     print("Training completed")

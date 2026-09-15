@@ -66,23 +66,25 @@ train_loader = DataLoader(
     pin_memory=True,
     collate_fn=collate_fn
 )
-
-val_data=CocoDataset(
-    root=f"{data_dir}/valid",
-    annFile=f'{data_dir}/valid/_annotations.coco.json',
-    transform=T.Compose([
-        T.ToImage(),
-        T.ToDtype(torch.float32, scale=True),
-        T.Resize((640, 640))
-    ])
-)
-val_loader = DataLoader(
-    val_data,
-    shuffle=False,
-    batch_size=8,
-    pin_memory=True,
-    collate_fn=collate_fn
-)
+if args.eval_model:
+    val_data = CocoDataset(
+        root=f"{data_dir}/valid",
+        annFile=f'{data_dir}/valid/_annotations.coco.json',
+        transform=T.Compose([
+            T.ToImage(),
+            T.ToDtype(torch.float32, scale=True),
+            T.Resize((640, 640))
+        ])
+    )
+    val_loader = DataLoader(
+        val_data,
+        shuffle=False,
+        batch_size=8,
+        pin_memory=True,
+        collate_fn=collate_fn
+    )
+else:
+    val_loader = None
 
 # create model
 model = DETR(
@@ -103,9 +105,16 @@ scheduler = lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
 )
 
 accelerator = Accelerator()
-model, optimizer, scheduler, train_loader, val_loader = accelerator.prepare(
-    model, optimizer, scheduler, train_loader, val_loader
-)
+
+if val_loader is not None:
+    model, optimizer, scheduler, train_loader, val_loader = accelerator.prepare(
+        model, optimizer, scheduler, train_loader, val_loader
+    )
+else:
+    model, optimizer, scheduler, train_loader = accelerator.prepare(
+        model, optimizer, scheduler, train_loader
+    )
+
 loss_fn = SetCriterion(
     num_classes=num_classes,
     matcher=matcher,
@@ -122,7 +131,7 @@ if __name__ == '__main__':
         epochs=args.epochs,
         accelerator=accelerator,
         scheduler=scheduler,
-        val_loader=val_loader if args.eval_model else None
+        val_loader=val_loader
     )
     
     if args.save_model and accelerator.is_local_main_process:
