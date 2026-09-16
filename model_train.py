@@ -119,7 +119,7 @@ loss_fn = SetCriterion(
     num_classes=num_classes,
     matcher=matcher,
     device=accelerator.device,
-    eos_coef=0.5
+    eos_coef=0.08
 )
 
 if __name__ == '__main__':
